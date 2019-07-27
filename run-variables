@@ -1,0 +1,12 @@
+export FLASK_APP=main.py
+export FLASK_RUN_HOST=0.0.0.0
+export FLASK_RUN_PORT=8080
+export FLASK_DEBUG=1
+sudo apt-get update
+sudo apt-get install redis-server
+sudo apt-get install redis-tools
+sudo pip install redis
+sudo pip install twilio
+sudo pip install --upgrade youtube_dl
+sudo pip install pafy
+sudo service redis-start
