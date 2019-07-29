@@ -21,16 +21,7 @@ r = redis.Redis(host="localhost", port=6379)
 def index():
     return render_template("index.html")
 
-@app.route('/addPhoneNumber', methods=["GET"])
-def addPhoneNumber():
-    formattedPhoneNumber = re.sub('[^0-9]','', request.form["phone-number"])
-    r.hset("numbers." + formattedPhoneNumber, "playlistURL", "None")
-    message = client.messages \
-                    .create(
-                         body="Thank you for signing up. To set your playlist, send its YouTube link here.",
-                         from_='+17343596043',
-                         to="+1" + formattedPhoneNumber
-                        )
+
 
 @app.route("/receiveSms", methods=['GET', 'POST'])
 def receiveSms():
@@ -40,10 +31,20 @@ def receiveSms():
 
     From = request.form["From"]
     Body = request.form["Body"]
-    resp.message("Updating playlist to: " + Body)
-    r.hset("numbers." + From, "playlistUrl", Body)
-    # for kvp in request.form:
-    #     print(kvp, file=sys.stderr)
+    if r.exists("numbers." + From) == 1:
+        resp.message("Updating playlist to: " + Body)
+        r.hset("numbers." + From, "playlistUrl", Body)
+    elif r.exists("numbers." + From) == 0:
+        r.hset("numbers." + From, "playlistURL", "None")
+        message = client.messages \
+                    .create(
+                         body="Thank you for signing up. To set your playlist, send its YouTube link here.",
+                         from_='+17343596043',
+                         to="+1" + formattedPhoneNumber
+                        )
+
+    # # for kvp in request.form:
+    # #     print(kvp, file=sys.stderr)
 
 @app.route("/reciveCall", methods=['GET' , 'POST'])
 def reciveCall():
